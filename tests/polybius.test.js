@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const polybius = require("../src/polybius");
 
-describe.only("polybius", () => {
+describe("polybius", () => {
   it("encrypts ignoring cases and maintaining spaces", () => {
     expect(polybius("thinkful")).to.equal("4432423352125413");
     expect(polybius("Hello world")).to.equal("3251131343 2543241341");
