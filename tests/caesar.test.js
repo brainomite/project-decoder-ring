@@ -8,25 +8,15 @@ describe("caesar", () => {
     expect(caesar("test", -30)).to.be.false;
     expect(caesar("test", 28)).to.be.false;
   });
-  it("Shifts in the positive direction", () => {
-    expect(caesar("thinkful", 3)).to.equal("wklqnixo");
+  it("Shifts in the negative direction ignoring non-alphabetic characters", () => {
+    expect(caesar("Apple MacBook", -3)).to.equal("xmmib jxzyllh");
   });
-  it("Shifts in the negative direction", () => {
-    expect(caesar("thinkful", -3)).to.equal("qefkhcri");
-    expect(caesar("a", -1)).to.equal("z");
+  it("Maintains non-alphabetic characters while shifting in positive direction", () => {
+    const expectedStr = caesar("This is a secret message!", 8);
+    expect(expectedStr).to.equal("bpqa qa i amkzmb umaaiom!");
   });
-  it("Ignores case of the input", () => {
-    expect(caesar("THINKful", 3)).to.equal("wklqnixo");
-  });
-  it("Maintains non-alphabetic characters", () => {
-    expect(caesar("This is a secret message!", 8)).to.equal(
-      "bpqa qa i amkzmb umaaiom!"
-    );
-  });
-  it("Should be able to decode", () => {
-    expect(caesar("wklqnixo", 3, false)).to.equal("thinkful");
-    expect(caesar("BPQA qa I amkzmb umaaiom!", 8, false)).to.equal(
-      "this is a secret message!"
-    );
+  it("Should be able to decode, respecting special characters and ignoring cases", () => {
+    const expectedStr = caesar("BPQA qa I amkzmb umaaiom!", 8, false);
+    expect(expectedStr).to.equal("this is a secret message!");
   });
 });
