@@ -1,34 +1,45 @@
-function genCharArray(startChar, endChar) {
-
+function genCharArray(startCharStr, endCharStr) {
   if (
-    typeof startChar !== "string" ||
-    typeof endChar !== "string" ||
-    startChar.length !== 1 ||
-    endChar.length !== 1
-    ) {
+    typeof startCharStr !== "string" ||
+    typeof endCharStr !== "string" ||
+    startCharStr.length !== 1 ||
+    endCharStr.length !== 1
+  ) {
     // 1. check for bad non single character strings and throw error if found
     throw new Error("invalid inputs, only single letter chars are accepted");
-  } else if (startChar >= endChar) {
+  } else if (startCharStr >= endCharStr) {
     // 2. check to make sure startChar comes before end character in ASCI code
     //    order
     throw new Error("startChar must be before endChar by ASCII code");
   }
 
-  // 3. determine number of characters needing generation
-  const startCharCode = startChar.charCodeAt();
-  const endCharCode = endChar.charCodeAt();
-  const letterGenCount = endCharCode - startCharCode + 1;
+  // 3. determine number of characters needing generation inclusive of the end
+  const startCharCodeInt = startCharStr.charCodeAt();
+  const endCharCodeInt = endCharStr.charCodeAt();
+  const letterGenCountInt = endCharCodeInt - startCharCodeInt + 1;
 
-  // 4. generate the array and return it
-  //    we can't map an array with "empty" elements, which is what the Array
-  //    constructor does, so we'll fill it with dummy values
-  return new Array(letterGenCount).fill(0).map((_el, index) => {
-    // an input starting with _ is convention to indicate it is an unused
-    // variable in a function
+  /*
+    4. generate the array by instantiating a new array and mapping the elements
+       to the correct values and return it.
 
-    // 4.a find the new char code, convert to a string and return
-    const cur_letter_code = startCharCode + index;
-    return String.fromCharCode(cur_letter_code);
+       we can't map an empty array even though it has a correct length, which
+       is what the Array constructor does, see the documentation here:
+       https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Array
+
+       Map iterates over the values, and doesn't look at the length, therefore
+       we'll fill it with dummy values then map over them
+  */
+  return new Array(letterGenCountInt).fill().map((_el, indexInt) => {
+    // since this array is filled with dummy values, and we don't care about
+    // the value itself, we'll name an input starting with _ is convention
+    // to indicate it is an unused input variable in a function
+
+    // in unicode, the latin alphabet is sequential code wise
+    // https://en.wikipedia.org/wiki/List_of_Unicode_characters#Basic_Latin
+
+    const relativeLetterCodeInt = startCharCodeInt + indexInt;
+    // turn the code back into a string
+    return String.fromCharCode(relativeLetterCodeInt);
   });
 }
 
