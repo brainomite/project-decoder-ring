@@ -11,9 +11,9 @@ const genCharArray = require("./gen-char-array");
   In this case I am creating a global constant with this IIFE
 */
 
-const POLYBIUS_SQUARE = (function () {
+const POLYBIUS_SQUARE_ARR = (function () {
   // create basic array
-  const squareArray = [
+  const squareArr = [
     genCharArray("a", "e"),
     genCharArray("f", "j"),
     genCharArray("l", "p"),
@@ -21,105 +21,115 @@ const POLYBIUS_SQUARE = (function () {
     genCharArray("v", "z"),
   ];
   // fix the second row to match the requirements
-  squareArray[1][3] = ["i", "j"];
-  squareArray[1][4] = "k";
-  return squareArray;
+  squareArr[1][3] = ["i", "j"];
+  squareArr[1][4] = "k";
+  return squareArr;
 })();
 
-function polybius(input, encode = true) {
-  if (encode) {
-    return encodingOf(input);
+function polybius(inputStr, encodeBool = true) {
+  // ignoring spaces, do we have even number of characters?
+  if ((inputStr.length - numberOfSpacesIn(inputStr)) % 2 !== 0) {
+    return false;
+  }
+
+  if (encodeBool) {
+    return encodingOf(inputStr);
   } else {
-    if ((input.length - numberOfSpacesIn(input)) % 2 !== 0) {
-      return false;
-    }
-    return decodingOf(input);
+    return decodingOf(inputStr);
   }
 }
 module.exports = polybius;
 
-function encodingOf(input) {
-  return input
-    .toLowerCase()
-    .split("")
-    // map each character to its 2 digit coordinate and return the new
-    // combined string
-    .map((char) => {
-      return char === " " ? " " : findSubstitutionFor(char);
-    }).join("");
+function encodingOf(inputStr) {
+  return (
+    inputStr
+      .toLowerCase()
+      .split("")
+      // map each character to its 2 digit coordinate and return the new
+      // combined string
+      .map((char) => (char === " " ? " " : findSubstitutionFor(char)))
+      .join("")
+  );
 }
 
-function decodingOf(input) {
+function decodingOf(inputStr) {
   return (
-    input
+    // note: i mapped twice to break down the problem
+    inputStr
       // split into words
       .split(" ")
       // map encoded word into array of coordinates
-      .map(wordToCoordinates)
+      .map(wordOfCoordinatesToArrOfCoordinateObjs)
       // map the coordinates to a decrypted word string
-      .map(coordinatesToWord)
+      .map(ArrOfCoordinateObjsToWord)
       // join words into phrase and return
       .join(" ")
   );
 }
 
-function coordinatesToWord(coordinateArray) {
+function ArrOfCoordinateObjsToWord(coordinateObjArr) {
   // map each coordinate to a character and join to a word
-  return coordinateArray.map(coordinateToChar).join("");
+  return coordinateObjArr.map(coordinateObjToChar).join("");
 }
 
-function coordinateToChar([firstDimInd, secondDimInd]) {
+function coordinateObjToChar({ firstDimensionIdx, secondDimensionIdx }) {
   // grab the character or array of characters
-  const charOrArrayOfChars = POLYBIUS_SQUARE[firstDimInd][secondDimInd];
-  return typeof charOrArrayOfChars === "string"
-    ? charOrArrayOfChars // its a character
-    : `(${charOrArrayOfChars.join("/")})`; // its an array of characters
+  const charStrOrArrayOfChars =
+    POLYBIUS_SQUARE_ARR[firstDimensionIdx][secondDimensionIdx];
+  // if its a string, return it if its an array, join as per specs and return
+  // with parens around within the new string
+  return typeof charStrOrArrayOfChars === "string"
+    ? charStrOrArrayOfChars // its a character
+    : `(${charStrOrArrayOfChars.join("/")})`; // its an array of characters
 }
 
-function wordToCoordinates(word) {
+function wordOfCoordinatesToArrOfCoordinateObjs(wordStr) {
   // reduce a word to an array of coordinates as numbers
-  return word.split("").reduce((coords, char, index) => {
+  return wordStr.split("").reduce((coordsArr, charStr, indexInt) => {
     // cipher uses a 1 based index system, we use a 0 based index
-    let dimensionIndex = parseInt(char) - 1;
-    if (index % 2 === 0) {
+    let dimensionIndInt = parseInt(charStr) - 1;
+    if (indexInt % 2 === 0) {
       // if its the first value, create a new coordinate array with the 2nd
       // dimension index inside and push into array - cipher says they are in
       // reverse order
-      coords.push([dimensionIndex]);
+      coordsArr.push({ secondDimensionIdx: dimensionIndInt });
     } else {
       // otherwise add to the beginning of the last coordinate array the first
       // dimension index because cipher says they are in reverse order
-      let LastCoordinateArr = coords[coords.length - 1];
-      LastCoordinateArr.unshift(dimensionIndex);
+      let lastCoordinateObj = coordsArr[coordsArr.length - 1];
+      lastCoordinateObj.firstDimensionIdx = dimensionIndInt;
     }
-    return coords;
+    return coordsArr;
   }, []);
 }
 
-function findSubstitutionFor(letter) {
+function findSubstitutionFor(letterStr) {
   // I'm using a for loop here because I whish to be able to return
   // early and I can't do that with a forEach
+  // im not using 'for-in' loop because I want access to the index number
   for (
-    let firstDimensionIdx = 0;
-    firstDimensionIdx < POLYBIUS_SQUARE.length;
-    firstDimensionIdx++
+    let firstDimensionIdxInt = 0;
+    firstDimensionIdxInt < POLYBIUS_SQUARE_ARR.length;
+    firstDimensionIdxInt++
   ) {
-    const subArr = POLYBIUS_SQUARE[firstDimensionIdx];
-    const secondDimensionIdx = subArr.findIndex((actualValue) => {
-      return typeof actualValue === "string"
-        ? actualValue === letter
-        : actualValue.includes(letter);
+    const subArr = POLYBIUS_SQUARE_ARR[firstDimensionIdxInt];
+    const secondDimensionIdxInt = subArr.findIndex((charStrOrCharStrArr) => {
+      // if its a string
+      return typeof charStrOrCharStrArr === "string"
+        ? charStrOrCharStrArr === letterStr // return whether the string matches
+        : charStrOrCharStrArr.includes(letterStr); // return result of includes
     });
-    if (secondDimensionIdx !== -1) {
-      // cipher rules says to do second dimension first
-      return `${secondDimensionIdx + 1}${firstDimensionIdx + 1}`;
+    if (secondDimensionIdxInt !== -1) {
+      // cipher rules says to do second dimension first and use a 1 based index
+      // so we add 1 to our 0 based index.
+      return `${secondDimensionIdxInt + 1}${firstDimensionIdxInt + 1}`;
     }
   }
-  throw new Error(`There is no encryption for '${letter}'`);
+  throw new Error(`There is no encryption for '${letterStr}'`);
 }
 
 function numberOfSpacesIn(inputStr) {
-  return inputStr.split("").reduce((accum, char) => {
-    return char === " " ? accum + 1 : accum;
+  return inputStr.split("").reduce((countOfSpacesInt, charStr) => {
+    return charStr === " " ? countOfSpacesInt + 1 : countOfSpacesInt;
   }, 0);
 }
