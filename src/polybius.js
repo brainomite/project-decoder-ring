@@ -104,7 +104,7 @@ function wordOfCoordinatesToArrOfCoordinateObjs(wordStr) {
 }
 
 function findSubstitutionFor(letterStr) {
-  // I'm using a for loop here because I whish to be able to return
+  // I'm using a for loop here because I wish to be able to return
   // early and I can't do that with a forEach
   // im not using 'for-in' loop because I want access to the index number
   for (
