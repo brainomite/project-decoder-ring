@@ -15,14 +15,14 @@ const POLYBIUS_SQUARE_ARR = (function () {
   // create basic array
   const squareArr = [
     genCharArray("a", "e"),
-    genCharArray("f", "j"),
+    genCharArray("f", "h"),
     genCharArray("l", "p"),
     genCharArray("q", "u"),
     genCharArray("v", "z"),
   ];
   // fix the second row to match the requirements
-  squareArr[1][3] = ["i", "j"];
-  squareArr[1][4] = "k";
+  squareArr[1].push("(i/j)");
+  squareArr[1].push("k");
   return squareArr;
 })();
 
@@ -69,18 +69,11 @@ function decodingOf(inputStr) {
 
 function ArrOfCoordinateObjsToWord(coordinateObjArr) {
   // map each coordinate to a character and join to a word
-  return coordinateObjArr.map(coordinateObjToChar).join("");
-}
-
-function coordinateObjToChar({ firstDimensionIdx, secondDimensionIdx }) {
-  // grab the character or array of characters
-  const charStrOrArrayOfChars =
-    POLYBIUS_SQUARE_ARR[firstDimensionIdx][secondDimensionIdx];
-  // if its a string, return it if its an array, join as per specs and return
-  // with parens around within the new string
-  return typeof charStrOrArrayOfChars === "string"
-    ? charStrOrArrayOfChars // its a character
-    : `(${charStrOrArrayOfChars.join("/")})`; // its an array of characters
+  return coordinateObjArr
+    .map(({ firstDimensionIdx, secondDimensionIdx }) => {
+      return POLYBIUS_SQUARE_ARR[firstDimensionIdx][secondDimensionIdx];
+    })
+    .join("");
 }
 
 function wordOfCoordinatesToArrOfCoordinateObjs(wordStr) {
@@ -89,12 +82,12 @@ function wordOfCoordinatesToArrOfCoordinateObjs(wordStr) {
     // cipher uses a 1 based index system, we use a 0 based index
     let dimensionIndInt = parseInt(charStr) - 1;
     if (indexInt % 2 === 0) {
-      // if its the first value, create a new coordinate array with the 2nd
+      // if its the first value, create a new coordinate object with the 2nd
       // dimension index inside and push into array - cipher says they are in
       // reverse order
       coordsArr.push({ secondDimensionIdx: dimensionIndInt });
     } else {
-      // otherwise add to the beginning of the last coordinate array the first
+      // otherwise add to the beginning of the last coordinate object the first
       // dimension index because cipher says they are in reverse order
       let lastCoordinateObj = coordsArr[coordsArr.length - 1];
       lastCoordinateObj.firstDimensionIdx = dimensionIndInt;
@@ -105,20 +98,19 @@ function wordOfCoordinatesToArrOfCoordinateObjs(wordStr) {
 
 function findSubstitutionFor(letterStr) {
   // I'm using a for loop here because I wish to be able to return
-  // early and I can't do that with a forEach
-  // im not using 'for-in' loop because I want access to the index number
+  // early from findSubstitutionFor and I can't do that with a forEach
+  // im not using a 'for-of' loop because I want access to the index number
   for (
     let firstDimensionIdxInt = 0;
     firstDimensionIdxInt < POLYBIUS_SQUARE_ARR.length;
     firstDimensionIdxInt++
   ) {
     const subArr = POLYBIUS_SQUARE_ARR[firstDimensionIdxInt];
-    const secondDimensionIdxInt = subArr.findIndex((charStrOrCharStrArr) => {
-      // if its a string
-      return typeof charStrOrCharStrArr === "string"
-        ? charStrOrCharStrArr === letterStr // return whether the string matches
-        : charStrOrCharStrArr.includes(letterStr); // return result of includes
+    const secondDimensionIdxInt = subArr.findIndex((charsStr) => {
+      return charsStr.includes(letterStr); // return result of includes
     });
+
+    // if the second index was found
     if (secondDimensionIdxInt !== -1) {
       // cipher rules says to do second dimension first and use a 1 based index
       // so we add 1 to our 0 based index.
@@ -129,7 +121,5 @@ function findSubstitutionFor(letterStr) {
 }
 
 function numberOfSpacesIn(inputStr) {
-  return inputStr.split("").reduce((countOfSpacesInt, charStr) => {
-    return charStr === " " ? countOfSpacesInt + 1 : countOfSpacesInt;
-  }, 0);
+  return inputStr.split(" ").length - 1;
 }
