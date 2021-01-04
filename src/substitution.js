@@ -1,5 +1,6 @@
 const genCharArray = require("./gen-char-array");
 
+const NUMBER_OF_LETTERS_IN_ENGLISH = 26;
 const ALPHABET_ARR = genCharArray("a", "z"); // ["a", "b", ... "y", "z"]
 
 function substitution(inputStr, substitutionAlphabetStr, encodeBool = true) {
@@ -7,7 +8,7 @@ function substitution(inputStr, substitutionAlphabetStr, encodeBool = true) {
   // non unique characters
   if (
     !substitutionAlphabetStr ||
-    substitutionAlphabetStr.length !== 26 ||
+    substitutionAlphabetStr.length !== NUMBER_OF_LETTERS_IN_ENGLISH ||
     notAllUniqueChars(substitutionAlphabetStr)
   ) {
     return false;
@@ -45,10 +46,8 @@ function notAllUniqueChars(string) {
     counterObj[charStr] = counterObj[charStr] ? counterObj[charStr] + 1 : 1;
     return counterObj;
   }, {});
-  // if any of the char counts is not 1 then return true
-  return Object.keys(charCounterObj).some((charStr) => {
-    return charCounterObj[charStr] !== 1;
-  });
+  // if they were all unique, we should have 26 keys
+  return Object.keys(charCounterObj).length !== NUMBER_OF_LETTERS_IN_ENGLISH
 }
 
 module.exports = substitution;
