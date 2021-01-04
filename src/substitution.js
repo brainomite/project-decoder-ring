@@ -3,8 +3,10 @@ const genCharArray = require("./gen-char-array");
 const ALPHABET_ARR = genCharArray("a", "z"); // ["a", "b", ... "y", "z"]
 
 function substitution(inputStr, substitutionAlphabetStr, encodeBool = true) {
-  // return false if length not 26 or there are non unique characters
+  // return false  substitution is undefined or if length not 26 or there are
+  // non unique characters
   if (
+    !substitutionAlphabetStr ||
     substitutionAlphabetStr.length !== 26 ||
     notAllUniqueChars(substitutionAlphabetStr)
   ) {

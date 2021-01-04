@@ -28,7 +28,7 @@ const POLYBIUS_SQUARE_ARR = (function () {
 
 function polybius(inputStr, encodeBool = true) {
   // ignoring spaces, do we have even number of characters?
-  if ((inputStr.length - numberOfSpacesIn(inputStr)) % 2 !== 0) {
+  if (!encodeBool && (inputStr.length - numberOfSpacesIn(inputStr)) % 2 !== 0) {
     return false;
   }
 
