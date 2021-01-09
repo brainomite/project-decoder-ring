@@ -20,17 +20,15 @@ function translate(inputStr, actualShiftInt) {
     // treat all characters as lowercase
     .toLowerCase()
     .split("")
-    .map(translateLetterToEncodedLetter)
+    .map(translateLetterToEncodedLetterUsingShiftOf(actualShiftInt))
     .join("");
   return resultStr;
+}
 
-  // this function is declared within the function translate to 'close over' or
-  // using closure to access the variable actualShiftInt since map can't pass it
-  // in. There are other techniques to deal with variables that can't be passed
-  // into a function when being used as a callback where we may not have
-  // full control over the parameters but I opted for this technique.
-
-  function translateLetterToEncodedLetter(charStr) {
+function translateLetterToEncodedLetterUsingShiftOf(actualShiftInt) {
+  // using a higher order function to return a function with access to
+  // actualShiftInt
+  return function translateLetterToEncodedLetter(charStr) {
     // find the position of the letter
     const origIndexInt = ALPHABET_ARR.indexOf(charStr);
     // if its not alphabetic, return the original letter, intact
@@ -44,7 +42,7 @@ function translate(inputStr, actualShiftInt) {
         : // newIndexInt is negative here, so we approach from the right
           ALPHABET_ARR[26 + newIndexInt];
     return resultStr;
-  }
+  };
 }
 
 function notAlphabetic(origIndex) {
